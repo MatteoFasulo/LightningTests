@@ -6,13 +6,9 @@ import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import MNIST
-from torchvision.transforms import ToTensor
 from torchvision import transforms
 
 import lightning as L
-from lightning.pytorch.callbacks.early_stopping import EarlyStopping
-from lightning.pytorch.callbacks import DeviceStatsMonitor
-from lightning.pytorch.profilers import AdvancedProfiler
 from lightning.pytorch.cli import LightningCLI
 
 # Function for setting the seed
@@ -24,7 +20,7 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 class LiteAutoEncoder(L.LightningModule):
-    def __init__(self, encoder, decoder, lr: float = 1e-3, w_decay: float = 1e-5, *args, **kwargs):
+    def __init__(self, lr: float = 1e-3, w_decay: float = 1e-5):
         super().__init__()
 
         self.lr = lr
@@ -156,24 +152,6 @@ class MNISTDataModule(L.LightningDataModule):
 
 def cli_main():
     cli = LightningCLI(LiteAutoEncoder, MNISTDataModule)
-
-# train the model (hint: here are some helpful Trainer arguments for rapid idea iteration)
-#profiler = AdvancedProfiler(dirpath=".", filename="perf_logs")
-#trainer = L.Trainer(
-#    max_epochs=10,
-#    callbacks=[
-#        EarlyStopping(monitor="val_loss", mode="min", patience=3),
-#        DeviceStatsMonitor(),
-#    ],
-#    profiler=profiler,
-#)
-#trainer.fit(autoencoder, mnist)
-
-# test the model
-#trainer.test(autoencoder, mnist)
-
-# save the model
-#trainer.save_checkpoint("autoencoder.ckpt")
 
 if __name__ == '__main__':
     cli_main()
