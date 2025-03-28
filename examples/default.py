@@ -75,7 +75,7 @@ class Model(L.LightningModule):
         preds = logits.argmax(dim=-1)  # Convert logits to class indices
         acc = (preds == labels).float().mean()
         self.log("val_acc", acc, on_step=False, on_epoch=True)
-        self.log("val_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
+        self.log("val_loss", loss, prog_bar=True, on_step=True, on_epoch=False)
         return {"val_loss": loss, "val_acc": acc}
 
     def test_step(self, batch, batch_idx):
@@ -152,7 +152,6 @@ def cli_main():
 
 if __name__ == '__main__':
     trainer = L.Trainer(
-        default_root_dir=os.path.join(os.getcwd(), "lightning_logs"),
         accelerator="gpu",
         precision=32,  # use 32-bit precision,
         max_epochs=10,
@@ -176,6 +175,7 @@ if __name__ == '__main__':
                 mode="exponential"
             ),
             ModelCheckpoint( # save the best model
+                dirpath="models",
                 save_weights_only=True,
                 monitor="val_loss",
                 mode="min", 
@@ -183,7 +183,7 @@ if __name__ == '__main__':
             ), 
             LearningRateMonitor("epoch"), # log learning rate
         ],
-        profiler=AdvancedProfiler(dirpath=".", filename="perf_logs"),
+        profiler=AdvancedProfiler(dirpath="./logs", filename="perf_logs"),
     )
     trainer.logger._log_graph = True
 
@@ -197,10 +197,10 @@ if __name__ == '__main__':
     #trainer.fit(model=autoencoder, datamodule=mnist)
 
     # Save the model (uncomment to save)
-    #trainer.save_checkpoint("autoencoder.ckpt")
+    #trainer.save_checkpoint("models/model.ckpt")
 
     # load the model
-    autoencoder = Model.load_from_checkpoint(checkpoint_path='autoencoder.ckpt')
+    autoencoder = Model.load_from_checkpoint(checkpoint_path='models/model.ckpt')
 
     # Test the model
     trainer.test(autoencoder, mnist)

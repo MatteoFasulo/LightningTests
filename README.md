@@ -33,6 +33,17 @@ python test_cli.py fit --config config.yaml
 This version demonstrates how to train a **Convolutional Neural Network** for classifying MNIST digits with PyTorch Lightning, providing more explicit control over the training loop and model configuration.
 
 - The model achieves **95% accuracy** on the MNIST dataset, using a Conv-BatchNorm-ReLU architecture with adaptive pooling.
+
+### Logging with TensorBoard
+
+Both versions support logging with **TensorBoard** for visualizing metrics, losses, and model performance during training. You can start TensorBoard using the following command:
+
+```bash
+tensorboard --logdir=lightning_logs
+```
+
+> [!TIP]
+> Make sure to run this command in the same directory where the logs are saved by the training script.
   
 ### Known Issues
 
