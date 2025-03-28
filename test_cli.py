@@ -77,7 +77,41 @@ class LiteAutoEncoder(L.LightningModule):
         return loss
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
-        return self(batch)
+        x, _ = batch
+        x = x.view(x.size(0), -1)
+        z = self.encoder(x)
+        x_hat = self.decoder(z)
+        
+        if batch_idx == 0:  # visualize only first batch
+            self._visualize_reconstruction(x, x_hat)
+        
+        return x_hat
+
+    def _visualize_reconstruction(self, x, x_hat, n: int = 5):
+        """Visualize original and reconstructed images side by side."""
+        plt.figure(figsize=(20, 4))
+        
+        for i in range(n):
+            # display original
+            ax = plt.subplot(2, n, i + 1)
+            plt.imshow(x[i].detach().cpu().numpy().reshape(28, 28))
+            plt.gray()
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+            if i == 0:
+                ax.set_title('Original')
+
+            # display reconstruction
+            ax = plt.subplot(2, n, i + 1 + n)
+            plt.imshow(x_hat[i].detach().cpu().numpy().reshape(28, 28))
+            plt.gray()
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+            if i == 0:
+                ax.set_title('Reconstructed')
+
+        plt.tight_layout()
+        plt.show()
     
     def configure_optimizers(self):
         optimizer = optim.AdamW(self.parameters(), lr=self.lr, weight_decay=self.w_decay)
